@@ -198,7 +198,7 @@ var Task = GObject.registerClass({
             this.btn_delete.show();
         }
 
-        destroy(){
+        _destroy(){
             Mainloop.source_remove(this._time_count_id);
             for (let key of this.connections.reverse())
                 var connection = this.connections.reverse()[key];
@@ -209,7 +209,7 @@ var Task = GObject.registerClass({
 
         _delete_task(){
             this.emit('delete_signal');
-            this.destroy();
+            this._destroy();
         }
     }
 );

@@ -31,6 +31,7 @@ var TaskSettings = GObject.registerClass({
             this.task = task;
             this.restTime = SECONDS_OF_DAY - totalTime;
             //Set up Boxlayouts for the settings
+            this.add_style_class_name("task-settings");
             this.descriptionBox = new St.BoxLayout({style_class: 'settings-box'});
             this.description = new St.Entry({style_class: 'description-label', text: this.task.description, can_focus: true});
             this.description.hide();
@@ -197,7 +198,7 @@ var TaskSettings = GObject.registerClass({
             this.totalLabel.text = Utils.calcTotal(this.task.weekdays);
         }
 
-        destroy() {
+        _destroy() {
             this.descriptionBtn.disconnect('clicked');
             this.currTimeSlider.disconnect('notify::value');
             this.descriptionText.disconnect('key_focus_out');
