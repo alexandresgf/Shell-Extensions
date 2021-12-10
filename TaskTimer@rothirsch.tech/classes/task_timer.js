@@ -15,7 +15,7 @@ const Utils = Extension.imports.classes.utils;
 const TaskSettingsItem = Extension.imports.classes.task_settings;
 const GObject = imports.gi.GObject
 
-const ADD_ICON = Gio.icon_new_for_string(Extension.path + "/icons/add_icon.png");
+const ADD_ICON = Gio.icon_new_for_string(Extension.path + "/icons/add_icon_black.png");
 
 const KEY_RETURN = 65293;
 const KEY_ENTER = 65421;
@@ -244,10 +244,10 @@ var TaskTimer = GObject.registerClass(
         }
 
         // Task closeSettings_signal
-        _closeSettings(_){
+        _closeSettings(o){
             if (this.taskSettings != null){
                 this.taskSettings.disconnect('settings_update_signal');
-                this.taskSettings.destroy();
+                this.taskSettings._destroy();
                 this.btn_add.show();
             }
         }

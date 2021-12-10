@@ -49,7 +49,12 @@
   background-image: url('icons/progress_bar.png');
   background-repeat: no-repeat;
   background-attachment: fixed;
-  border-radius: 7px;
+  border-radius: 14px;
+  width: 370px;
+}
+
+.task-settings {
+    width: 370px;
 }
 
 .delete_button {
@@ -59,9 +64,11 @@
 }
 
 .label {
+  color: #CCC;
   width: 120px;
 }
 .durationLabel {
+  color: #CCC;
   text-align: center;
   width: 140px;
 }
