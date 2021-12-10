@@ -4,7 +4,6 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Slider = imports.ui.slider;
 const Clutter = imports.gi.Clutter;
-const Lang = imports.lang;
 const Gtk = imports.gi.Gtk;
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
@@ -14,8 +13,6 @@ const TaskItem = Extension.imports.classes.task_item;
 const Utils = Extension.imports.classes.utils;
 const TaskSettingsItem = Extension.imports.classes.task_settings;
 const GObject = imports.gi.GObject
-
-const ADD_ICON = Gio.icon_new_for_string(Extension.path + "/icons/add_icon_black.png");
 
 const KEY_RETURN = 65293;
 const KEY_ENTER = 65421;
@@ -30,6 +27,8 @@ var TaskTimer = GObject.registerClass(
             this.saveFile = this.dirPath + "saveFile.json";
             this._load();
             super._init(St.Align.START, 'TaskTimer', false);
+
+            this.add_icon = Gio.icon_new_for_string(Extension.path + "/icons/add_icon_black.png");
 
             this.buttonText = new St.Label({y_align: Clutter.ActorAlign.CENTER});
             this.buttonText.text = Utils.convertTime(this.currTime) + ' / ' + Utils.convertTime(this.totalTime);
@@ -73,7 +72,7 @@ var TaskTimer = GObject.registerClass(
             this.newTask.add_style_class_name("new-task-entry");
             let taskText = this.newTask.clutter_text;
             taskText.set_max_length(50);
-            taskText.connect('key-press-event', Lang.bind(this,function(o,e){
+            taskText.connect('key-press-event', function(o,e){
                 let symbol = e.get_key_symbol();
                 if (symbol == KEY_RETURN || symbol == KEY_ENTER) {
                     if (this.time != 0 && !isNaN(this.time)){
@@ -85,31 +84,31 @@ var TaskTimer = GObject.registerClass(
 
                     }
                 }
-            }));
+            }.bind(this));
             this.btn_add = new St.Button({label: "add-btn", track_hover: true});
-            let icon = new St.Icon({icon_size: 30, gicon: ADD_ICON});
+            let icon = new St.Icon({icon_size: 30, gicon: this.add_icon});
             this.btn_add.add_actor(icon);
             this.newTaskSection = new PopupMenu.PopupMenuSection();
             this.timeHeader = new St.Button({label:_("New Task"), track_hover: true, y_align: Clutter.ActorAlign.CENTER});
             this.timeHeader.add_style_class_name("new-task-header");
-            this.timeHeader.connect('clicked', Lang.bind(this, this._onNewTaskClose));
+            this.timeHeader.connect('clicked', this._onNewTaskClose.bind(this));
             this.newTaskBox = new St.BoxLayout();
             this.newTaskBox.set_vertical(false);
             this.timeLabel = new St.Label({text:_("0:00"), y_align: Clutter.ActorAlign.CENTER});
             this.timeLabel.add_style_class_name("time-label");
             this.timeSlider = new Slider.Slider(0);
             this.timeSlider.add_style_class_name("new-task-slider");
-            this.timeSlider.connect('notify::value', Lang.bind(this, this._onSliderValueChange));
+            this.timeSlider.connect('notify::value', this._onSliderValueChange.bind(this));
             this.btn_enter = new St.Button({label: ""});
             this.btn_enter.add_style_class_name("enter-button");
-            this.btn_enter.connect("clicked", Lang.bind(this, this._onEnterClicked));
-            icon = new St.Icon({icon_size: 20, gicon: ADD_ICON});
+            this.btn_enter.connect("clicked", this._onEnterClicked.bind(this));
+            icon = new St.Icon({icon_size: 20, gicon: this.add_icon});
             this.btn_enter.add_actor(icon);
             this.newTaskBox.add_actor(this.timeLabel);
             this.newTaskBox.add_actor(this.newTask);
             this.newTaskBox.add_actor(this.btn_enter);
             this.mainBox.add_actor(this.btn_add);
-            this.btn_add.connect('clicked', Lang.bind(this, this._onAddClicked));
+            this.btn_add.connect('clicked', this._onAddClicked.bind(this));
             this.newTaskSection.actor.add_actor(this.timeHeader);
             this.newTaskSection.actor.add_actor(this.timeSlider);
             this.newTaskSection.actor.add_actor(this.newTaskBox);
@@ -196,13 +195,13 @@ var TaskTimer = GObject.registerClass(
             let item = new TaskItem.Task(task);
             this.taskBox.addMenuItem(item);
             this.timeSlider._moveHandle(0,0);
-            item.connect('delete_signal', Lang.bind(this, this._delete_task));
-            item.connect('update_signal', Lang.bind(this, this._update_task));
-            item.connect('stop_signal', Lang.bind(this, this._stop_all_but_current));
-            item.connect('settings_signal', Lang.bind(this, this._settings));
-            item.connect('closeSettings_signal', Lang.bind(this, this._closeSettings));
-            item.connect('moveUp_signal', Lang.bind(this, this._moveTaskUp));
-            item.connect('moveDown_signal', Lang.bind(this, this._moveTaskDown));
+            item.connect('delete_signal', this._delete_task.bind(this));
+            item.connect('update_signal', this._update_task.bind(this));
+            item.connect('stop_signal', this._stop_all_but_current.bind(this));
+            item.connect('settings_signal', this._settings.bind(this));
+            item.connect('closeSettings_signal', this._closeSettings.bind(this));
+            item.connect('moveUp_signal', this._moveTaskUp.bind(this));
+            item.connect('moveDown_signal', this._moveTaskDown.bind(this));
             if (task.running){
                 item.task.running = false;
                 item._startStop();
@@ -236,7 +235,7 @@ var TaskTimer = GObject.registerClass(
                 var item = menuItems[key];
                 if (item.task.id == o.task.id) {
                     this.taskSettings = new TaskSettingsItem.TaskSettings(o.task, spentTime);
-                    this.taskSettings.connect('settings_update_signal', Lang.bind(this, this._update_from_settings));
+                    this.taskSettings.connect('settings_update_signal', this._update_from_settings.bind(this));
                     this.taskBox.addMenuItem(this.taskSettings, i);
                 }
                 i++;

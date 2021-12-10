@@ -1,24 +1,14 @@
-
 const PopupMenu = imports.ui.popupMenu;
 const Main = imports.ui.main;
 const Mainloop = imports.mainloop;
 const St = imports.gi.St;
 const Gio = imports.gi.Gio;
 const Clutter = imports.gi.Clutter;
-const Lang = imports.lang;
 const GObject = imports.gi.GObject
 
 const Signals = imports.signals;
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const Utils = Extension.imports.classes.utils;
-
-const CLOSE_ICON = Gio.icon_new_for_string(Extension.path + "/icons/close_icon.png");
-const PLAY_ICON = Gio.icon_new_for_string(Extension.path + "/icons/play_icon.png");
-const PAUSE_ICON = Gio.icon_new_for_string(Extension.path + "/icons/pause_icon.png");
-const RESTART_ICON = Gio.icon_new_for_string(Extension.path + "/icons/restart_icon.png");
-const SETTINGS_ICON = Gio.icon_new_for_string(Extension.path + "/icons/settings_icon.png");
-const UP_ICON = Gio.icon_new_for_string(Extension.path + "/icons/up_icon.png");
-const DOWN_ICON = Gio.icon_new_for_string(Extension.path + "/icons/down_icon.png");
 
 const PROGRESS_BAR_LENGTH = 400;
 
@@ -35,6 +25,14 @@ var Task = GObject.registerClass({
     class Task extends PopupMenu.PopupMenuItem {
         _init(task) {
             super._init(task.name, false);
+            this.close_icon = Gio.icon_new_for_string(Extension.path + "/icons/close_icon.png");
+            this.play_icon = Gio.icon_new_for_string(Extension.path + "/icons/play_icon.png");
+            this.pause_icon = Gio.icon_new_for_string(Extension.path + "/icons/pause_icon.png");
+            this.restart_icon = Gio.icon_new_for_string(Extension.path + "/icons/restart_icon.png");
+            this.settings_icon = Gio.icon_new_for_string(Extension.path + "/icons/settings_icon.png");
+            this.up_icon = Gio.icon_new_for_string(Extension.path + "/icons/up_icon.png");
+            this.down_icon = Gio.icon_new_for_string(Extension.path + "/icons/down_icon.png");
+
             this._time_count_id = null;
             this.task = task;
             this.isTask = true;
@@ -54,25 +52,25 @@ var Task = GObject.registerClass({
             this.buttonBox.set_vertical(false);
             this.buttonBox.add_style_class_name("button-box");
             this.btn_delete = new St.Button({style_class: 'delete_button', label: ''});
-            let icon = new St.Icon({icon_size: 12, gicon: CLOSE_ICON, style_class: 'task-buttons'});
+            let icon = new St.Icon({icon_size: 12, gicon: this.close_icon, style_class: 'task-buttons'});
             this.btn_delete.add_actor(icon);
             this.btn_play = new St.Button({label: ""});
-            icon = new St.Icon({icon_size: 12, gicon: PLAY_ICON, style_class: 'task-buttons'});
+            icon = new St.Icon({icon_size: 12, gicon: this.play_icon, style_class: 'task-buttons'});
             this.btn_play.add_actor(icon);
             this.btn_pause = new St.Button({label: ""});
-            icon = new St.Icon({icon_size: 12, gicon: PAUSE_ICON,style_class: 'task-buttons'});
+            icon = new St.Icon({icon_size: 12, gicon: this.pause_icon, style_class: 'task-buttons'});
             this.btn_pause.add_actor(icon);
             this.btn_restart = new St.Button({label: ""});
-            icon = new St.Icon({icon_size: 12, gicon: RESTART_ICON,style_class: 'task-buttons'});
+            icon = new St.Icon({icon_size: 12, gicon: this.restart_icon, style_class: 'task-buttons'});
             this.btn_restart.add_actor(icon);
             this.btn_settings = new St.Button({label: ""});
-            icon = new St.Icon({icon_size: 12, gicon: SETTINGS_ICON,style_class: 'task-buttons'});
+            icon = new St.Icon({icon_size: 12, gicon: this.settings_icon, style_class: 'task-buttons'});
             this.btn_settings.add_actor(icon);
             this.btn_up = new St.Button({label: ""});
-            icon = new St.Icon({gicon: UP_ICON,style_class: 'move-buttons'});
+            icon = new St.Icon({gicon: this.up_icon, style_class: 'move-buttons'});
             this.btn_up.add_actor(icon);
             this.btn_down = new St.Button({label: ""});
-            icon = new St.Icon({gicon: DOWN_ICON,style_class: 'move-buttons'});
+            icon = new St.Icon({gicon: this.down_icon, style_class: 'move-buttons'});
             this.btn_down.add_actor(icon);
             this.moveBox = new St.BoxLayout();
             this.moveBox.add_style_class_name("move-box");
@@ -91,19 +89,19 @@ var Task = GObject.registerClass({
             this.moveBox.hide();
 
             //connect buttons to events
-            let conn = this.btn_delete.connect('clicked', Lang.bind(this, this._delete_task));
+            let conn = this.btn_delete.connect('clicked', this._delete_task.bind(this));
             this.connections.push([this.btn_delete, conn]);
-            conn = this.btn_play.connect("clicked", Lang.bind(this, this._startStop));
+            conn = this.btn_play.connect("clicked", this._startStop.bind(this));
             this.connections.push([this.btn_play, conn]);
-            conn = this.btn_pause.connect("clicked", Lang.bind(this, this._startStop));
+            conn = this.btn_pause.connect("clicked", this._startStop.bind(this));
             this.connections.push([this.btn_pause, conn]);
-            conn = this.btn_restart.connect("clicked", Lang.bind(this, this._restart));
+            conn = this.btn_restart.connect("clicked", this._restart.bind(this));
             this.connections.push([this.btn_restart, conn]);
-            conn = this.btn_settings.connect("clicked", Lang.bind(this, this.toggleSettings));
+            conn = this.btn_settings.connect("clicked", this.toggleSettings.bind(this));
             this.connections.push([this.btn_settings, conn]);
-            conn = this.btn_up.connect("clicked", Lang.bind(this, this._moveUp));
+            conn = this.btn_up.connect("clicked", this._moveUp.bind(this));
             this.connections.push([this.btn_settings, conn]);
-            conn = this.btn_down.connect("clicked", Lang.bind(this, this._moveDown));
+            conn = this.btn_down.connect("clicked", this._moveDown.bind(this));
             this.connections.push([this.btn_settings, conn]);
         }
 
@@ -128,7 +126,7 @@ var Task = GObject.registerClass({
                 this.set_style('background-color:' + this.task.color + '; background-position:' + pixels + 'px 0px;');
             }
             if (loop){
-                this._time_count_id = Mainloop.timeout_add_seconds(1, Lang.bind(this, this._update));
+                this._time_count_id = Mainloop.timeout_add_seconds(1, this._update.bind(this));
             }
         }
 

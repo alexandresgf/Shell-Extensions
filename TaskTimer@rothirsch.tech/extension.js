@@ -1,5 +1,4 @@
 const Main = imports.ui.main;
-const Lang = imports.lang;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Slider = imports.ui.slider;
@@ -11,9 +10,6 @@ const Clutter = imports.gi.Clutter;
 const Shell = imports.gi.Shell;
 const Util = imports.misc.util;
 const GObject = imports.gi.GObject;
-//const ExtensionUtils = imports.misc.extensionUtils;
-//const Me = ExtensionUtils.getCurrentExtension();
-//const task_timer = Me.imports.classes.task_timer;
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const Utils = Extension.imports.classes.utils;
 const task_timer = Extension.imports.classes.task_timer;

@@ -1,11 +1,9 @@
-
 const Main = imports.ui.main;
 const St = imports.gi.St;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Slider = imports.ui.slider;
 const Clutter = imports.gi.Clutter;
-const Lang = imports.lang;
 const Gtk = imports.gi.Gtk;
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
@@ -14,8 +12,6 @@ const Extension = imports.misc.extensionUtils.getCurrentExtension();
 const TaskItem = Extension.imports.classes.task_item;
 const Utils = Extension.imports.classes.utils;
 const GObject = imports.gi.GObject
-
-const ADD_ICON = Gio.icon_new_for_string(Extension.path + "/icons/add_task_icon.png");
 
 const KEY_RETURN = 65293;
 const KEY_ENTER = 65421;
@@ -36,7 +32,7 @@ var TaskSettings = GObject.registerClass({
             this.description = new St.Entry({style_class: 'description-label', text: this.task.description, can_focus: true});
             this.description.hide();
             this.descriptionBtn = new St.Button();
-            this.descriptionBtn.connect("clicked", Lang.bind(this, this._clickDescription));
+            this.descriptionBtn.connect("clicked", this._clickDescription.bind(this));
             this.descriptionBox.add_actor(this.descriptionBtn);
             this.descriptionBtn.set_label(Utils.addNewLines(this.task.description));
             this.descriptionBtn.add_style_class_name("description-btn");
@@ -125,14 +121,14 @@ var TaskSettings = GObject.registerClass({
             label.add_style_class_name("settings-label");
             this.currTimeSlider = new Slider.Slider(this.task.currTime/(this.restTime));
             this.currTimeSlider.add_style_class_name("time-slider");
-            this.currTimeSlider.connect('notify::value', Lang.bind(this, this._onCurrTimeChange));
+            this.currTimeSlider.connect('notify::value', this._onCurrTimeChange.bind(this));
             this.currTimeBox.add_actor(label);
             this.currTimeBox.add_actor(this.currTimeSlider);
             label = new St.Label({text:_("Total time:")});
             label.add_style_class_name("settings-label");
             this.totalTimeSlider = new Slider.Slider(this.task.time/(this.restTime));
             this.totalTimeSlider.add_style_class_name("time-slider");
-            this.totalTimeSlider.connect('notify::value', Lang.bind(this, this._onTotalTimeChange));
+            this.totalTimeSlider.connect('notify::value', this._onTotalTimeChange.bind(this));
             this.totalTimeBox.add_actor(label);
             this.totalTimeBox.add_actor(this.totalTimeSlider);
             this.set_vertical(true);
@@ -147,8 +143,8 @@ var TaskSettings = GObject.registerClass({
             this.add_actor((new PopupMenu.PopupSeparatorMenuItem).actor);
 
             this.descriptionText = this.description.clutter_text;
-            this.descriptionText.connect('key_focus_out', Lang.bind(this, this._changeDescription));
-            this.descriptionText.connect('key_press_event', Lang.bind(this, this._enterDescription));
+            this.descriptionText.connect('key_focus_out', this._changeDescription.bind(this));
+            this.descriptionText.connect('key_press_event', this._enterDescription.bind(this));
         }
 
         _clickDescription(){
